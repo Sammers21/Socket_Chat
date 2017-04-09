@@ -2,8 +2,47 @@ group 'ru.drankov'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
-apply plugin: 'idea'
 apply plugin: 'application'
+
+
+
+mainClassName = 'ru.drankov.server.Server'
+
+task consoleServer(dependsOn: 'run') {
+
+}
+
+task guiServer(dependsOn: 'run') {
+
+}
+
+task guiClient(dependsOn: 'run') {
+
+}
+
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(consoleServer)) {
+        mainClassName = 'ru.drankov.server.Server'
+    } else if (taskGraph.hasTask(guiServer)) {
+        mainClassName = 'ru.drankov.server.ServerGUI'
+    } else if (taskGraph.hasTask(guiClient)) {
+        mainClassName = 'ru.drankov.client.ClientGUI'
+    }
+}
+
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'ru.drankov.client.ClientGUI'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 
 sourceCompatibility = 1.8
 

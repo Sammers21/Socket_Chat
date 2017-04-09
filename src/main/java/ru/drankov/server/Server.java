@@ -1,6 +1,7 @@
 package ru.drankov.server;
 
-import ru.drankov.util.Console;
+import ru.drankov.util.Consolable;
+import ru.drankov.util.StupidConsole;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -24,11 +25,11 @@ public class Server {
     public List<SocketChannel> sockets = new ArrayList<>();
     private Map<String, StringBuilder> chats = new ConcurrentHashMap<>(1);
 
-    Console serverConsole;
+    Consolable serverConsole;
 
     private Semaphore semaphoreForRecieve = new Semaphore(1);
     private Semaphore rebootsem = new Semaphore(1);
-    private Semaphore msgSemaphore=new Semaphore(1);
+    private Semaphore msgSemaphore = new Semaphore(1);
     private AtomicBoolean cancellsed = new AtomicBoolean(false);
 
     private MessageProcessor messageProcessor = new MessageProcessor(serverConsole, sockets, chats);
@@ -38,6 +39,24 @@ public class Server {
     public final String host = "localhost";
 
     Thread t;
+
+    public static void main(String[] args) {
+        new Thread(() -> {
+            Server server = new Server(new StupidConsole());
+            try {
+                server.initServer(8080);
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     private void startServer() {
 
@@ -154,19 +173,27 @@ public class Server {
             return result;
         }
 
-
+        ByteBuffer bu1f = ByteBuffer.allocate(1);
+        int i;
+        while ((i = channel.read(bu1f)) != 0) {
+            bu1f.clear();
+            bu1f.flip();
+        }
+        channel.finishConnect();
+        key.cancel();
+        sockets.remove(channel);
         throw new IOException("cant read from channel");
 
     }
 
 
-    public Server(Console serverConsole) {
+    public Server(Consolable serverConsole) {
         this.serverConsole = serverConsole;
     }
 
     //server async init
     public void initServer(int port) throws IOException, InterruptedException {
-        new Thread(() -> {
+        Thread thread = new Thread(() -> {
             try {
                 rebootsem.acquire();
                 stopServer();
@@ -176,7 +203,10 @@ public class Server {
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
+        thread.setDaemon(true);
+        thread.start();
+
     }
 
     private void portInit(int port) throws IOException {

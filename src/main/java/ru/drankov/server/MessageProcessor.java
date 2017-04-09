@@ -1,7 +1,7 @@
 package ru.drankov.server;
 
 
-import ru.drankov.util.Console;
+import ru.drankov.util.Consolable;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -16,14 +16,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageProcessor {
 
-    Console console;
+    Consolable console;
 
     public List<SocketChannel> sockets = new ArrayList<>();
     private Map<String, StringBuilder> chats = new ConcurrentHashMap<>(1);
 
     ArrayBlockingQueue<String> queue = new ArrayBlockingQueue<>(150);
 
-    public MessageProcessor(Console console, List<SocketChannel> sockets, Map<String, StringBuilder> chats) {
+    public MessageProcessor(Consolable console, List<SocketChannel> sockets, Map<String, StringBuilder> chats) {
         this.console = console;
         this.sockets = sockets;
         this.chats = chats;
