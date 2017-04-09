@@ -1,4 +1,4 @@
-package ru.drankov.server;
+package ru.drankov.util;
 
 import javafx.scene.control.TextArea;
 
@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ServerConsole {
+public class Console {
 
     public TextArea view = new TextArea();
 
     private List<String> console = new ArrayList<>();
 
-    public ServerConsole() {
+    public Console() {
         view.textProperty().addListener((observable, oldValue, newValue) -> {
             view.setScrollTop(Double.MAX_VALUE); //this will scroll to the bottom
         });
