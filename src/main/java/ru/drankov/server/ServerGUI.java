@@ -3,13 +3,13 @@ package ru.drankov.server;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 public class ServerGUI extends Application {
-    Class curClass = ServerGUI.class;
+
+    private ServerConsole serverConsole=new ServerConsole();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -25,11 +25,6 @@ public class ServerGUI extends Application {
     private GridPane initGridPane() {
         //root
         GridPane gridPane = new GridPane();
-
-
-        //label
-        ServerConsole serverConsole = new ServerConsole();
-
 
         //button
         Button button = new Button("Start");
@@ -48,10 +43,6 @@ public class ServerGUI extends Application {
         gridPane.setVgap(10);
 
         return gridPane;
-    }
-
-    private void printConsole(String st) {
-
     }
 
     public static void main(String[] args) {
