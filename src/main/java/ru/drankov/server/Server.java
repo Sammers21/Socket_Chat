@@ -36,7 +36,7 @@ public class Server {
 
     public int port;
 
-    public final String host = "localhost";
+    public final String host = "40.68.46.120";
 
     Thread t;
 
@@ -48,6 +48,7 @@ public class Server {
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
+            System.out.println("started");
             while (true) {
                 try {
                     Thread.sleep(1000);
