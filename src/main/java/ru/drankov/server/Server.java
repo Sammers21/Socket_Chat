@@ -4,11 +4,16 @@ import ru.drankov.util.Console;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -17,12 +22,16 @@ public class Server {
     public Selector sel = null;
     public ServerSocketChannel server = null;
     public List<SocketChannel> sockets = new ArrayList<>();
-    private Map<String, String> chats = new HashMap<>(1);
+    private Map<String, StringBuilder> chats = new ConcurrentHashMap<>(1);
 
     Console serverConsole;
 
-    private Semaphore semaphore = new Semaphore(1);
+    private Semaphore semaphoreForRecieve = new Semaphore(1);
+    private Semaphore rebootsem = new Semaphore(1);
+    private Semaphore msgSemaphore=new Semaphore(1);
     private AtomicBoolean cancellsed = new AtomicBoolean(false);
+
+    private MessageProcessor messageProcessor = new MessageProcessor(serverConsole, sockets, chats);
 
     public int port;
 
@@ -35,7 +44,7 @@ public class Server {
         Runnable r = () -> {
             //server acceptor
             try {
-                semaphore.acquire();
+                semaphoreForRecieve.acquire();
                 SelectionKey acceptKey = server.register(sel, SelectionKey.OP_ACCEPT);
 
                 while (true) {
@@ -53,26 +62,23 @@ public class Server {
                             it.remove();
 
                             if (key.isAcceptable()) {
-                                System.out.println("Key is Acceptable");
+                                System.out.println("key is Acceptable");
                                 serverConsole.cout("Key is Acceptable");
                                 ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
                                 SocketChannel socket = ssc.accept();
                                 socket.configureBlocking(false);
-                                socket.register(sel, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                                socket.register(sel, SelectionKey.OP_READ | SelectionKey.OP_WRITE, socket);
                                 sockets.add(socket);
                             }
                             if (key.isReadable()) {
                                 System.out.println("Key is readable");
-                                serverConsole.cout("Key is readable");
+                                serverConsole.cout("key is readable");
+                                handleRead(key);
                             }
-
-
                         }
                     }
                     try {
-                        System.out.println("sleep");
-                        serverConsole.cout("sleep");
-                        Thread.sleep(100);
+                        Thread.sleep(300);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -86,7 +92,7 @@ public class Server {
                     for (SocketChannel socket : sockets) {
                         socket.finishConnect();
                     }
-                    semaphore.release();
+                    semaphoreForRecieve.release();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
@@ -98,16 +104,78 @@ public class Server {
         t.start();
     }
 
+    private void handleRead(SelectionKey key) {
+
+        String result = null;
+        try {
+            result = getMessageFomChannel(key);
+            serverConsole.cout("received " + result);
+            messageProcessor.process(result);
+        } catch (IOException e) {
+            e.printStackTrace();
+            serverConsole.cout("problems with message reading");
+        }
+        System.out.println("decoded " + result);
+    }
+
+    private String getMessageFomChannel(SelectionKey key) throws IOException {
+        SocketChannel channel = (SocketChannel) key.channel();
+
+
+        String result = null;
+        int nBytes;
+        ByteBuffer buf = ByteBuffer.allocate(4);
+        //read length
+        nBytes = channel.read(buf);
+        if (nBytes == 4) {
+
+            System.out.println("nnBytes " + nBytes);
+            buf.flip();
+            int i = buf.asIntBuffer().get();
+            System.out.println("buf to alloc " + i);
+            buf.rewind();
+
+            //read file
+            ByteBuffer b2 = ByteBuffer.allocate(i);
+            nBytes = channel.read(b2);
+            System.out.println("file nBytes =" + nBytes);
+            b2.rewind();
+
+            //print the file
+            Charset charset = Charset.forName("UTF-8");
+            CharsetDecoder decoder = charset.newDecoder();
+            CharBuffer charBuffer = decoder.decode(b2);
+            result = charBuffer.toString();
+            System.out.println(result);
+            buf.clear();
+            b2.clear();
+
+            return result;
+        }
+
+
+        throw new IOException("cant read from channel");
+
+    }
+
 
     public Server(Console serverConsole) {
         this.serverConsole = serverConsole;
     }
 
     //server async init
-    public synchronized void initServer(int port) throws IOException, InterruptedException {
-        stopServer();
-        portInit(port);
-        startServer();
+    public void initServer(int port) throws IOException, InterruptedException {
+        new Thread(() -> {
+            try {
+                rebootsem.acquire();
+                stopServer();
+                portInit(port);
+                startServer();
+                rebootsem.release();
+            } catch (InterruptedException | IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     private void portInit(int port) throws IOException {
@@ -129,15 +197,15 @@ public class Server {
                 .findAny()
                 .orElse(null);
         if (aDefault == null) {
-            chats.put("default", "");
+            chats.put("default", new StringBuilder(""));
         }
 
     }
 
     private void stopServer() throws InterruptedException {
         cancellsed.set(true);
-        semaphore.acquire();
-        semaphore.release();
+        semaphoreForRecieve.acquire();
+        semaphoreForRecieve.release();
     }
 
 }

@@ -2,15 +2,13 @@ package ru.drankov.util;
 
 import javafx.scene.control.TextArea;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class Console {
 
-    public TextArea view = new TextArea();
+    public volatile TextArea view = new TextArea();
 
-    private List<String> console = new ArrayList<>();
+    private StringBuilder stringBuilder = new StringBuilder("");
+
+    int cout = 0;
 
     public Console() {
         view.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -20,19 +18,20 @@ public class Console {
     }
 
     /**
-     * This method print something to console
+     * This method print something to consolearray
+     *
      * @param st String that should be printed
      */
     public void cout(String st) {
-        console.add(st);
+        stringBuilder.append(st).append("\n");
+        cout++;
         viewConsole();
     }
 
     private void viewConsole() {
-        String st = console.stream()
-                .collect(Collectors.joining("\n"));
-        view.setPrefColumnCount(console.size());
-        view.setText(st);
+
+        view.setPrefColumnCount(cout);
+        view.setText(stringBuilder.toString());
         //trigger scroll
         view.appendText("");
     }
