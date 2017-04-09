@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -30,7 +31,7 @@ public class MessageProcessor {
     }
 
     private void startProcessing() {
-        new Thread(() -> {
+        Thread msg = new Thread(() -> {
             while (true) {
                 String pollstr = null;
                 try {
@@ -43,8 +44,9 @@ public class MessageProcessor {
 
                 String[] poll = pollstr.split(" ");
                 if (poll.length >= 4 && poll[0].equals("msg")) {
-                    String str = "" +
-                            "[" +
+                    String time = getCurTime();
+                    String str = time +
+                            " [" +
                             poll[1] +
                             "]" +
                             ":" +
@@ -58,7 +60,18 @@ public class MessageProcessor {
                 }
             }
 
-        }).start();
+        });
+        msg.setDaemon(true);
+        msg.start();
+    }
+
+    private String getCurTime() {
+        Calendar rightNow = Calendar.getInstance();
+        int hour = rightNow.get(Calendar.HOUR_OF_DAY);
+        int min = rightNow.get(Calendar.MINUTE);
+        int sec = rightNow.get(Calendar.SECOND);
+
+        return "[" + hour + ":" + min + ":" + sec + "]";
     }
 
     public void process(String message) {

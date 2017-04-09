@@ -1,7 +1,10 @@
 package ru.drankov.client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -25,11 +28,14 @@ public class ClientGUI extends Application {
         client = new Client(clientConsole);
         GridPane gridPane = initGridPane();
 
-        Scene scene = new Scene(gridPane, 240, 300);
+        Scene scene = new Scene(gridPane, 400, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
 
         help();
+
+        primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest(e -> Platform.exit());
     }
 
     private void help() {
@@ -42,9 +48,7 @@ public class ClientGUI extends Application {
         //
         TextField faddress = new TextField();
         faddress.setPromptText("Enter server adders");
-        faddress.setOnAction(s -> {
-            client.makeConnection(faddress.getText());
-        });
+        faddress.setOnAction(s -> client.makeConnection(faddress.getText()));
         //text field init
         TextField textField = new TextField();
 
@@ -54,9 +58,21 @@ public class ClientGUI extends Application {
             textField.setText("");
         });
 
-        gridPane.add(faddress, 0, 0);
-        gridPane.add(clientConsole.view, 0, 1);
-        gridPane.add(textField, 0, 2);
+        //btn
+        Button button = new Button("Connect");
+        button.setOnAction(s -> client.makeConnection(faddress.getText()));
+        gridPane.add(button, 0, 0);
+        gridPane.add(faddress, 1, 0, 1, 1);
+        gridPane.add(clientConsole.view, 0, 1, 2, 1);
+        gridPane.add(textField, 0, 2, 2, 1);
+
+        gridPane.setAlignment(Pos.CENTER);
+
+
+        //grid settings
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+
 
         return gridPane;
     }

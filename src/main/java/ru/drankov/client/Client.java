@@ -49,7 +49,7 @@ public class Client {
             int w2 = socket.write(body);
             System.out.println("wrote " + w2);
             System.out.println("header is 4");
-            System.out.println("body is "+bytes.length);
+            System.out.println("body is " + bytes.length);
         } catch (IOException e) {
             e.printStackTrace();
             console.cout("problem with message sending to sockets");
@@ -101,6 +101,7 @@ public class Client {
         public ReceiveMesasgesThread(String str, SocketChannel client) {
             super(str);
             channel = client;
+            this.setDaemon(true);
         }
 
         @Override
@@ -134,7 +135,7 @@ public class Client {
                         CharBuffer charBuffer = decoder.decode(b2);
                         String result = charBuffer.toString();
                         System.out.println(result);
-                        console.cout(result);
+                        recievedMessage(result);
                         buf.clear();
                         b2.clear();
                     }
@@ -147,6 +148,17 @@ public class Client {
                 e.printStackTrace();
             }
 
+        }
+    }
+
+    private void recievedMessage(String result) {
+        String[] split = result.split(" ");
+        if (split.length >= 3 && split[0].equals("chat")) {
+            StringBuilder sb = new StringBuilder("");
+            for (int i = 2; i < split.length; i++) {
+                sb.append(split[i]);
+            }
+            console.cout(sb.toString());
         }
     }
 

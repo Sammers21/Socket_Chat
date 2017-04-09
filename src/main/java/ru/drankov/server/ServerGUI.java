@@ -1,6 +1,8 @@
 package ru.drankov.server;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -24,9 +26,12 @@ public class ServerGUI extends Application {
         //server
         server = new Server(serverConsole);
 
-        Scene scene = new Scene(gridPane, 240, 300);
+        Scene scene = new Scene(gridPane, 400, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest(e -> Platform.exit());
 
     }
 
@@ -63,6 +68,8 @@ public class ServerGUI extends Application {
         //grid settings
         gridPane.setHgap(10);
         gridPane.setVgap(10);
+
+        gridPane.setAlignment(Pos.CENTER);
 
         return gridPane;
     }

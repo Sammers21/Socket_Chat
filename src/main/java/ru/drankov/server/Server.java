@@ -101,6 +101,7 @@ public class Server {
 
         };
         t = new Thread(r);
+        t.setDaemon(true);
         t.start();
     }
 
