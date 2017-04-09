@@ -4,6 +4,7 @@ import ru.drankov.util.Consolable;
 import ru.drankov.util.StupidConsole;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -217,7 +218,7 @@ public class Server {
         server = ServerSocketChannel.open();
         server.configureBlocking(false);
         server.socket().bind(
-                new InetSocketAddress(host, port)
+                new InetSocketAddress(InetAddress.getLocalHost(), port)
         );
 
         cancellsed.set(false);
