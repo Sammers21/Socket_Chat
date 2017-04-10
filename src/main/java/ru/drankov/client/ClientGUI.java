@@ -90,16 +90,22 @@ public class ClientGUI extends Application {
             System.out.println("login before sending message");
             clientConsole.cout("login before sending message");
             help();
-        } else if (split.length == 1 && login != null) {
+        } else if (split.length == 2 && split[0].equals("login")) {
+            login = split[1];
+            clientConsole.cout("you login like a " + split[1]);
+        } else if (split.length >= 1 && login != null) {
             try {
-                client.send("msg " + login + " " + chatName + " " + split[0]);
+
+                    StringBuilder sb = new StringBuilder("");
+                    for (int i = 0; i < split.length; i++) {
+                        sb.append(split[i]+" ");
+                    }
+
+                client.send("msg " + login + " " + chatName + " " + sb.toString());
             } catch (IOException e) {
                 e.printStackTrace();
                 clientConsole.cout("can't send message");
             }
-        } else if (split.length == 2 && split[0].equals("login")) {
-            login = split[1];
-            clientConsole.cout("you login like a " + split[1]);
         }
 
     }
