@@ -45,7 +45,7 @@ task clientGUIJar(type: Jar) {
                 'Implementation-Version': version,
                 'Main-Class': 'ru.drankov.client.ClientGUI'
     }
-    baseName = project.name + '-CLIENT-GUI'
+    baseName = project.name + '-Client-GUI'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
