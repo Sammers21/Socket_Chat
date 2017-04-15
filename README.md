@@ -38,7 +38,7 @@ $ ./gradlew serverGUIJar
 $ java -jar SOCKET_CHAT-Server-GUI-1.0-RELEASE.jar
 ```
 
-### How does it looks like?
+### How does it look like?
 ![image](https://cloud.githubusercontent.com/assets/16746106/25064513/6511f5de-2204-11e7-933b-19670efeaa94.png)
 
 Author: Pavel Drankov (c) 2017
