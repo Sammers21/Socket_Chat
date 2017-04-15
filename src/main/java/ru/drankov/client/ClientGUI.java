@@ -96,10 +96,10 @@ public class ClientGUI extends Application {
         } else if (split.length >= 1 && login != null) {
             try {
 
-                    StringBuilder sb = new StringBuilder("");
-                    for (int i = 0; i < split.length; i++) {
-                        sb.append(split[i]+" ");
-                    }
+                StringBuilder sb = new StringBuilder("");
+                for (int i = 0; i < split.length; i++) {
+                    sb.append(split[i] + " ");
+                }
 
                 client.send("msg " + login + " " + chatName + " " + sb.toString());
             } catch (IOException e) {

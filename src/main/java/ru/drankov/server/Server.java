@@ -22,24 +22,26 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Server {
 
     public Selector sel = null;
+
     public ServerSocketChannel server = null;
+
     public List<SocketChannel> sockets = new ArrayList<>();
+
     private Map<String, StringBuilder> chats = new ConcurrentHashMap<>(1);
 
-    Consolable serverConsole;
+    private Consolable serverConsole;
 
     private Semaphore semaphoreForRecieve = new Semaphore(1);
+
     private Semaphore rebootsem = new Semaphore(1);
-    private Semaphore msgSemaphore = new Semaphore(1);
+
     private AtomicBoolean cancellsed = new AtomicBoolean(false);
 
     private MessageProcessor messageProcessor = new MessageProcessor(serverConsole, sockets, chats);
 
     public int port;
 
-    public final String host = "40.68.46.120";
-
-    Thread t;
+    private Thread t;
 
     public static void main(String[] args) {
         new Thread(() -> {
@@ -176,8 +178,7 @@ public class Server {
         }
 
         ByteBuffer bu1f = ByteBuffer.allocate(1);
-        int i;
-        while ((i = channel.read(bu1f)) != 0) {
+        while (channel.read(bu1f) != 0) {
             bu1f.clear();
             bu1f.flip();
         }
@@ -217,9 +218,15 @@ public class Server {
         sel = Selector.open();
         server = ServerSocketChannel.open();
         server.configureBlocking(false);
-        server.socket().bind(
-                new InetSocketAddress(InetAddress.getLocalHost(), port)
-        );
+        if (serverConsole instanceof StupidConsole)
+            //remote server side
+            server.socket().bind(
+                    new InetSocketAddress(InetAddress.getLocalHost(), port)
+            );
+        else //localhost side
+            server.socket().bind(
+                    new InetSocketAddress("localhost", port)
+            );
 
         cancellsed.set(false);
 

@@ -7,10 +7,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,16 +41,24 @@ public class MessageProcessor {
 
                 String[] poll = pollstr.split(" ");
                 if (poll.length >= 4 && poll[0].equals("msg")) {
+                    String reduce =
+                            Arrays.stream(poll)
+                                    .skip(3)
+                                    .reduce((s1, s2) -> s1 + " " + s2)
+                                    .orElse("");
+
                     String time = getCurTime();
                     String str = time +
                             " [" +
                             poll[1] +
                             "]" +
                             ":" +
-                            poll[3];
+                            reduce;
+
                     System.out.println("send  " + str + " to all chats");
                     System.out.println("socket amount " + sockets.size());
                     chats.get(poll[2])
+                            .append(" ")
                             .append(str)
                             .append("\n");
                     sendToChat(str, poll[2]);
@@ -80,6 +85,7 @@ public class MessageProcessor {
 
     private void sendToChat(String msg, String chatName) {
         final String toSend = "chat " + chatName + " " + msg;
+        System.out.println("to send " + "chat " + chatName + " " + msg);
         sockets.stream()
                 .forEach(s ->
                         sendMessage(toSend, s));
@@ -100,7 +106,6 @@ public class MessageProcessor {
             header.flip();
             ByteBuffer body = ByteBuffer.allocate(4 + bytes.length);
             body.put(header);
-            /*body.flip();*/
             body.put(bytes);
             body.flip();
             int w2 = socket.write(body);

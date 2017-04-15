@@ -11,6 +11,7 @@ import java.nio.CharBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.util.Arrays;
 
 public class Client {
 
@@ -109,6 +110,7 @@ public class Client {
 
             System.out.println("Successful connection to server");
             console.cout("Successful connection to server");
+
             try {
                 while (cancelled) {
                     int nBytes;
@@ -117,10 +119,8 @@ public class Client {
                     nBytes = client.read(buf);
                     if (nBytes == 4) {
 
-                        //  System.out.println("nnBytes " + nBytes);
                         buf.rewind();
                         int i = buf.asIntBuffer().get();
-                        //   System.out.println("buf to alloc " + i);
                         buf.rewind();
 
                         //read file
@@ -154,11 +154,12 @@ public class Client {
     private void recievedMessage(String result) {
         String[] split = result.split(" ");
         if (split.length >= 3 && split[0].equals("chat")) {
-            StringBuilder sb = new StringBuilder("");
-            for (int i = 2; i < split.length; i++) {
-                sb.append(split[i]);
-            }
-            console.cout(sb.toString());
+            String s = Arrays
+                    .stream(split)
+                    .skip(2)
+                    .reduce((s1, s2) -> s1 + " " + s2)
+                    .orElse("");
+            console.cout(s);
         }
     }
 
