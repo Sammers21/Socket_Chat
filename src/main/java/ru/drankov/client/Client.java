@@ -24,11 +24,23 @@ public class Client {
         this.console = console;
     }
 
+    /**
+     * Sends message to server
+     *
+     * @param st message
+     * @throws IOException
+     */
     public void send(String st) throws IOException {
         sendMessage(st, client);
         System.out.println("bytes sended to server");
     }
 
+    /**
+     * Sends message to server
+     *
+     * @param msg    message
+     * @param socket channel to communicate with server
+     */
     private void sendMessage(String msg, SocketChannel socket) {
         byte[] bytes = new byte[0];
         try {
@@ -57,6 +69,11 @@ public class Client {
         }
     }
 
+    /**
+     * Connect with server
+     *
+     * @param string server address
+     */
     public void makeConnection(String string) {
         String[] split = string.split(":");
         if (split.length != 2) {
@@ -85,6 +102,9 @@ public class Client {
 
     }
 
+    /**
+     * Start service that receive messages from server
+     */
     public void receiveMessage() {
         rt = new ReceiveMesasgesThread("Receive THread", client);
         rt.start();
@@ -151,6 +171,11 @@ public class Client {
         }
     }
 
+    /**
+     * process and output to GUI console result
+     *
+     * @param result message from server
+     */
     private void recievedMessage(String result) {
         String[] split = result.split(" ");
         if (split.length >= 3 && split[0].equals("chat")) {

@@ -27,6 +27,9 @@ public class MessageProcessor {
         startProcessing();
     }
 
+    /**
+     * Create main thread of receiver that wait for new messages
+     */
     private void startProcessing() {
         Thread msg = new Thread(() -> {
             while (true) {
@@ -70,6 +73,10 @@ public class MessageProcessor {
         msg.start();
     }
 
+    /**
+     * Get Formatted string
+     * @return
+     */
     private String getCurTime() {
         Calendar rightNow = Calendar.getInstance();
         int hour = rightNow.get(Calendar.HOUR_OF_DAY);
@@ -83,6 +90,11 @@ public class MessageProcessor {
         queue.add(message);
     }
 
+    /**
+     * Send to all clients message
+     * @param msg message to send
+     * @param chatName chat name
+     */
     private void sendToChat(String msg, String chatName) {
         final String toSend = "chat " + chatName + " " + msg;
         System.out.println("to send " + "chat " + chatName + " " + msg);

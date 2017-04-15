@@ -128,6 +128,11 @@ public class Server {
         t.start();
     }
 
+    /**
+     * Send message to processing thread
+     *
+     * @param key readable key
+     */
     private void handleRead(SelectionKey key) {
 
         String result = null;
@@ -142,10 +147,15 @@ public class Server {
         System.out.println("decoded " + result);
     }
 
+    /**
+     * retries message from channel
+     *
+     * @param key channel
+     * @return message
+     * @throws IOException
+     */
     private String getMessageFomChannel(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-
-
         String result = null;
         int nBytes;
         ByteBuffer buf = ByteBuffer.allocate(4);
@@ -212,6 +222,12 @@ public class Server {
 
     }
 
+    /**
+     * Reinit server on some port
+     *
+     * @param port port address
+     * @throws IOException
+     */
     private void portInit(int port) throws IOException {
 
         this.port = port;

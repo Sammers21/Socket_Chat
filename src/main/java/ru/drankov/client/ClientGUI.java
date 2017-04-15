@@ -77,6 +77,11 @@ public class ClientGUI extends Application {
         return gridPane;
     }
 
+    /**
+     * process input string from gui cmd
+     *
+     * @param text input string
+     */
     private void process(String text) {
         if (text.equals("help")) {
             System.out.println("help");
