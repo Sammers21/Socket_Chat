@@ -38,3 +38,4 @@ $ ./gradlew serverGUIJar
 $ java -jar SOCKET_CHAT-Server-GUI-1.0-RELEASE.jar
 ```
 
+Author: Pavel Drankov (c) 2017
