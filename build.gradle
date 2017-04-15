@@ -1,5 +1,5 @@
 group 'ru.drankov'
-version '1.0-SNAPSHOT'
+version '1.0-RELEASE'
 
 apply plugin: 'java'
 apply plugin: 'application'
@@ -7,6 +7,10 @@ apply plugin: 'application'
 
 
 mainClassName = 'ru.drankov.server.Server'
+
+////////////////////////////////////////////////////////////////////
+////////////// CONSOLE RUN /////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
 
 task consoleServer(dependsOn: 'run') {
 
@@ -31,25 +35,47 @@ gradle.taskGraph.whenReady { taskGraph ->
     }
 }
 
+////////////////////////////////////////////////////////////////////
+//////////////////   JARS   ////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
 
-task fatJar(type: Jar) {
+task clientGUIJar(type: Jar) {
     manifest {
         attributes 'Implementation-Title': 'Gradle Jar File Example',
                 'Implementation-Version': version,
                 'Main-Class': 'ru.drankov.client.ClientGUI'
     }
-    baseName = project.name + '-all'
+    baseName = project.name + '-CLIENT-GUI'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task serverGUIJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'ru.drankov.server.ServerGUI'
+    }
+    baseName = project.name + '-Server-GUI'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task consoleServerJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'ru.drankov.server.ServerGUI'
+    }
+    baseName = project.name + '-Conosle_Server'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
 
+
 sourceCompatibility = 1.8
 
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
 }
