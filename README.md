@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Sammers21/Socket_Chat.svg?branch=master)](https://travis-ci.org/Sammers21/Socket_Chat)
+
 # How to?
 
 **\* Server Console**
